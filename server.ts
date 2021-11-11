@@ -1,41 +1,19 @@
 import express from 'express';
 import cors from "cors"
-import { CreateUserUC } from './src/useCases/createUserUC';
-import { User } from './src/entities/user';
-import { users } from './src/data/users';
-import { v4 } from 'uuid';
+import { createUserHandler } from './src/presentation/createUserHandler';
+import { getUsersHandlers } from './src/presentation/getUsersHandler';
+import { getUserDetailHandler } from './src/presentation/getUserDetailHandler';
+import { bankDraftOrDepositHandler } from './src/presentation/bankDraftOrDepositHandler';
 
 const app = express()
 
 app.use(express.json())
 app.use(cors())
 
-app.get("/users", (req, res) => {
-    // TODO: create useCase to this
-    res.json(users)
-})
-
-app.post("/user", async (req, res) => {
-    try {
-        const { name, cpf, birthDate } = req.body
-        const id = v4()
-        const user = new User(
-            id,
-            name,
-            cpf,
-            birthDate
-        )
-        const useCase = new CreateUserUC()
-        const response = await useCase.execute(user)
-        res.json(response)
-    } catch (err) {
-        res.status(404).json({
-            message: 'It was not possible to register this user.',
-            error: err,
-        })
-    }
-})
-
+app.get("/users", getUsersHandlers)
+app.post("/user", createUserHandler)
+app.get("/user/:id", getUserDetailHandler)
+app.put("/accountAction/:userId", bankDraftOrDepositHandler)
 
 app.listen(3003, () => {
     console.log(`Server is running on port 3003`)
