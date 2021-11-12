@@ -7,7 +7,7 @@ export const users: User[] = [
         "age": 46,
         "cpf": "000.000.000-01",
         "birthDate": new Date("1974-12-06T03:00:00.000Z"),        
-        "balance": 0,
+        "balance": 60,
         "bankStatement": []
     },
     {
@@ -25,7 +25,7 @@ export const users: User[] = [
         "age": 60,
         "cpf": "000.000.000-03",
         "birthDate": new Date("1960-12-06T03:00:00.000Z"),
-        "balance": 0,
+        "balance": 100,
         "bankStatement": []
     }
 ]

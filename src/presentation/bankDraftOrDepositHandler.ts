@@ -1,6 +1,7 @@
 import { RequestHandler } from "express"
 import { v4 } from "uuid"
-import { AccountAction, AccountActionType } from "../entities/accountAction"
+import { TransitionType } from "../entities/abstractEntities/genericBankTransition"
+import { AccountAction } from "../entities/accountAction"
 import { BankDraftOrDepositUC } from "../useCases/bankDraftOrDepositUC"
 
 export const bankDraftOrDepositHandler: RequestHandler =  async (req, res) => {
@@ -12,7 +13,7 @@ export const bankDraftOrDepositHandler: RequestHandler =  async (req, res) => {
             value,
             id,
             new Date(),
-            Number(actionType) as unknown as AccountActionType,
+            Number(actionType) as unknown as TransitionType,
             description
         )
         const useCase = new BankDraftOrDepositUC()

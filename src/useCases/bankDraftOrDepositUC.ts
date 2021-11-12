@@ -1,5 +1,6 @@
 import { users } from "../data/users";
-import { AccountAction, AccountActionType } from "../entities/accountAction";
+import { TransitionType } from "../entities/abstractEntities/genericBankTransition";
+import { AccountAction } from "../entities/accountAction";
 import { User } from "../entities/user";
 
 export class BankDraftOrDepositUC {
@@ -10,7 +11,7 @@ export class BankDraftOrDepositUC {
             const updatedUser = await this.handleNewAccountAction(accountAction, userId)
             return Promise.resolve({
                 Success: true,
-                Message: "User created successfully",
+                Message: "Bank transition done successfully",
                 User: updatedUser,
             })
         } catch (err) {
@@ -26,10 +27,10 @@ export class BankDraftOrDepositUC {
             const indexToRemove = users.findIndex(user => user.id === userId)
             if (user) {
                 switch (accountAction.type) {
-                    case AccountActionType.DEPOSIT:
+                    case TransitionType.DEPOSIT:
                         user.balance += accountAction.value
                         break
-                    case AccountActionType.DRAFT: 
+                    case TransitionType.DRAFT: 
                         if (user.balance >= accountAction.value) user.balance -= accountAction.value
                         else throw new Error("You don't have enough money.")
                         break

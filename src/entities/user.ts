@@ -1,4 +1,5 @@
 import { getAgeByBirthDate } from "../utils/getAgeByBirthDate"
+import { GenericBankTransition } from "./abstractEntities/genericBankTransition"
 
 export class User {
     id: string
@@ -7,7 +8,7 @@ export class User {
     cpf: string
     birthDate: Date
     balance: number
-    bankStatement: any[]
+    bankStatement: GenericBankTransition[]
 
     constructor(
         id: string,
