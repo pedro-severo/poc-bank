@@ -1,17 +1,14 @@
-import { users } from './../data/users';
+import connection from '../../databaseConnection';
+import { users } from '../database/users';
 import { User } from "../entities/user";
+import { mapDateToSqlDate } from '../utils/mapDateToSqlDate';
 
 export class CreateUserUC {
 
     // TODO: to type response
     async execute(user: User): Promise<any> {
         try {
-            const userAlreadyExist = await this.checkUserExistence(user)
-            if (!userAlreadyExist) {
-                return await this.createUser(user)
-            } else {
-                throw new Error("User already exist.");
-            }
+            return await this.createUser(user)
         } catch (err) {
             throw new Error("");
         }
@@ -24,13 +21,22 @@ export class CreateUserUC {
     }
     private async createUser(user: User) {
         try {
-            users.push(user)
+            const {id, name, age, cpf, birthDate, balance, bankStatement } = user
+            await connection("users").insert({
+                id, 
+                name, 
+                age, 
+                cpf, 
+                birthDate: mapDateToSqlDate(birthDate), 
+                balance
+            })
             return Promise.resolve({
                 Success: true,
                 Message: "User created successfully",
                 Token: "",
             })
         } catch(err) {
+            console.log(err)
             throw new Error("It was not possible to create this user.");
         }
     }

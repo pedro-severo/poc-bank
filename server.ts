@@ -1,5 +1,6 @@
 import express from 'express';
-import cors from "cors"
+import cors from "cors";
+import dotenv from "dotenv"
 import { createUserHandler } from './src/presentation/createUserHandler';
 import { getUsersHandlers } from './src/presentation/getUsersHandler';
 import { getUserDetailHandler } from './src/presentation/getUserDetailHandler';

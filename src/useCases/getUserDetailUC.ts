@@ -1,4 +1,4 @@
-import { users } from './../data/users';
+import { users } from '../database/users';
 import { User } from "../entities/user";
 
 export class GetUserDetailUC {

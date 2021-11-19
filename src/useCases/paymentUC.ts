@@ -1,4 +1,4 @@
-import { users } from "../data/users"
+import { users } from "../database/users"
 import { Payment } from "../entities/payment"
 import { User } from "../entities/user"
 
