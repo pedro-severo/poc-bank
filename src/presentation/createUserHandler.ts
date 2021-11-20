@@ -3,6 +3,7 @@ import { RequestHandler } from "express";
 import { v4 } from "uuid";
 import { User } from '../entities/user';
 import { mapPtBrDateToUsDate } from '../utils/mapPtBrDateToUsDate';
+import Container from 'typedi';
 
 export const createUserHandler: RequestHandler =  async (req, res) => {
     try {
@@ -15,7 +16,7 @@ export const createUserHandler: RequestHandler =  async (req, res) => {
             cpf,
             new Date(usBirthDate)
         )
-        const useCase = new CreateUserUC()
+        const useCase = Container.get(CreateUserUC)
         const response = await useCase.execute(user)
         res.json(response)
     } catch (err) {

@@ -1,4 +1,4 @@
-import { users } from "../database/users";
+import { users } from "../services/database/users";
 import { TransitionType } from "../entities/abstractEntities/genericBankTransition";
 import { AccountAction } from "../entities/accountAction";
 import { User } from "../entities/user";

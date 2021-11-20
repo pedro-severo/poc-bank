@@ -1,5 +1,5 @@
 import { RequestHandler } from "express"
-import { users } from "../database/users"
+import { users } from "../services/database/users"
 import { GetUserDetailUC } from "../useCases/getUserDetailUC"
 
 export const getUserDetailHandler: RequestHandler = async (req, res) => {
