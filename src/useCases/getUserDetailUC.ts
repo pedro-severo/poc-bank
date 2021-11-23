@@ -1,26 +1,23 @@
-import { users } from '../services/database/users';
 import { User } from "../entities/user";
+import Container, { Service } from 'typedi';
+import { UserDatabase } from '../services/database/user/userDatabase';
 
+@Service()
+// @ts-ignore
 export class GetUserDetailUC {
+    userDb: UserDatabase
 
+    constructor() {
+        this.userDb = Container.get(UserDatabase)
+    }
+    
     // TODO: to type response
-    async execute(userId: string): Promise<any> {
+    async execute(userId: string): Promise<User> {
         try {
-            const user = await this.getUser(userId)
+            const user = await this.userDb.getUserById(userId)
             return user
         } catch (err) {
             throw new Error("");
-        }
-    }
-
-    // TODO: once database implemented, abstract this methods in a DATABASE class
-    private async getUser(id: string): Promise<User> {
-        try {
-            const user = users.find(user => user.id === id)
-            if (user) return user
-            else throw new Error("User not found.")
-        } catch (err) {
-            throw new Error("")
         }
     }
 }

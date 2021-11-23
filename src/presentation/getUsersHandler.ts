@@ -1,6 +1,16 @@
 import { RequestHandler } from "express"
-import { users } from "../services/database/users"
+import Container from "typedi"
+import { GetUsersUC } from "../useCases/getUsersUC"
 
 export const getUsersHandlers: RequestHandler = async (req, res) => {
-    res.json(users)
+    try {
+        const useCase = Container.get(GetUsersUC)
+        const response = await useCase.execute()
+        res.json(response)
+    } catch (err) {
+        res.status(404).json({
+            message: 'Not found.',
+            error: err,
+        })
+    }
 }

@@ -1,11 +1,11 @@
 import { RequestHandler } from "express"
-import { users } from "../services/database/users"
+import Container from "typedi"
 import { GetUserDetailUC } from "../useCases/getUserDetailUC"
 
 export const getUserDetailHandler: RequestHandler = async (req, res) => {
     try {
         const { id } = req.params
-        const useCase = new GetUserDetailUC()
+        const useCase = Container.get(GetUserDetailUC)
         const response = await useCase.execute(id)
         res.json(response)
     } catch (err) {
