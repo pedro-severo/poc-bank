@@ -7,6 +7,7 @@ export class User {
     age: number
     cpf: string
     birthDate: Date
+    // TODO: once entire database implemented, remove this two props
     balance: number
     bankStatement: GenericBankTransition[]
 
