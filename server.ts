@@ -16,8 +16,8 @@ app.use(cors())
 app.get("/users", getUsersHandlers)
 app.post("/user", createUserHandler)
 app.get("/user/:id", getUserDetailHandler)
-app.put("/accountAction/:userId", bankDraftOrDepositHandler)
-app.put("/payment/:userId", paymentHandler)
+app.put("/accountAction/:accountId", bankDraftOrDepositHandler)
+app.put("/payment/:accountId", paymentHandler)
 app.put("/transaction/:sourceUserId/:targetUserId", bankTransactionHandler)
 
 app.listen(3003, () => {

@@ -2,13 +2,23 @@ import { users } from "../services/database/users";
 import { TransitionType } from "../entities/abstractEntities/genericBankTransition";
 import { AccountAction } from "../entities/accountAction";
 import { User } from "../entities/user";
+import Container, { Service } from "typedi";
+import { AccountDatabase } from "../services/database/account/accountDatabase";
 
+// TODO: Fix ts-ignore
+@Service()
+// @ts-ignore
 export class BankDraftOrDepositUC {
+    accountDb: AccountDatabase
+
+    constructor() {
+        this.accountDb = Container.get(AccountDatabase)
+    }
 
     // TODO: to type response
-    async execute(accountAction: AccountAction, userId: string): Promise<any> {
+    async execute(accountAction: AccountAction): Promise<any> {
         try {
-            const updatedUser = await this.handleNewAccountAction(accountAction, userId)
+            const updatedUser = await this.accountDb.handleNewAccountAction(accountAction)
             return Promise.resolve({
                 Success: true,
                 Message: "Bank transition done successfully",
@@ -21,30 +31,7 @@ export class BankDraftOrDepositUC {
     }
 
     // TODO: once database implemented, abstract this methods in a DATABASE class
-    private async handleNewAccountAction(accountAction: AccountAction, userId: string) {
-        try {            
-            const user = await this.getUser(userId)
-            const indexToRemove = users.findIndex(user => user.id === userId)
-            if (user) {
-                switch (accountAction.type) {
-                    case TransitionType.DEPOSIT:
-                        user.balance += accountAction.value
-                        break
-                    case TransitionType.DRAFT: 
-                        if (user.balance >= accountAction.value) user.balance -= accountAction.value
-                        else throw new Error("You don't have enough money.")
-                        break
-                    default:
-                        throw new Error("Account action not found.")
-                }
-                user.bankStatement.push(accountAction)
-                users.splice(indexToRemove, 1, user)
-                return user
-            }
-        } catch (err) {
-            throw new Error("")
-        }
-    }
+
     private async getUser(id: string): Promise<User> {
         try {
             const user = users.find(user => user.id === id)

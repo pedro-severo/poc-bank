@@ -10,11 +10,12 @@ export class Payment extends GenericBankTransition {
         id: string,
         date: Date,
         type: TransitionType,
+        accountId: string,
         isASchedule: boolean,
         description?: string
 
     ) {
-        super(value, id, date, type, description)
+        super(value, id, date, type, accountId, description)
         this.paymentType = paymentType 
         this.isASchedule = isASchedule
     }

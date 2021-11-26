@@ -25,7 +25,8 @@ export const paymentHandler: RequestHandler = async (req, res) => {
             value,
             id,
             usDate ? new Date(usDate) : new Date(),
-            Number(actionType) as unknown as TransitionType,
+            actionType as TransitionType,
+            userId,
             !!date,
             description
         )
