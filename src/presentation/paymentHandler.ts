@@ -1,4 +1,5 @@
 import { RequestHandler } from "express"
+import Container from "typedi"
 import { v4 } from "uuid"
 import { TransitionType } from "../entities/abstractEntities/genericBankTransition"
 import { Payment } from "../entities/payment"
@@ -18,7 +19,7 @@ export const paymentHandler: RequestHandler = async (req, res) => {
             })
             return
         }
-        const { userId } = req.params
+        const { accountId } = req.params
         const id = v4()
         const accountAction = new Payment(
             paymentType,
@@ -26,13 +27,12 @@ export const paymentHandler: RequestHandler = async (req, res) => {
             id,
             usDate ? new Date(usDate) : new Date(),
             actionType as TransitionType,
-            userId,
-            !!date,
+            accountId,
+            !!usDate,
             description
         )
-
-        const useCase = new PaymentUC()
-        const response = await useCase.execute(accountAction, userId)
+        const useCase = Container.get(PaymentUC)
+        const response = await useCase.execute(accountAction)
         res.json(response)
     } catch (err) {
         res.status(404).json({

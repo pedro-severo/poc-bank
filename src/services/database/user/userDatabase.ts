@@ -48,11 +48,23 @@ export class UserDatabase {
                 WHERE user.id="${id}";
             `)
             const userDetailDTO = result[0][0]
-            const balance = await connection("drafts_and_deposits")
+            // TODO: get these arrays below in a common class called Database that are extended in specific databases classes. The method can be named as getBankStatement
+            const drafts_and_deposits = await connection("drafts_and_deposits")
                 .select("value", "type", "date", "description")
                 .where("account_id", userDetailDTO.id)
                 .orderBy("date")
-            userDetailDTO.bankStatement = balance
+            const payments = await connection("payments")
+                .select(
+                    "value", 
+                    "type", 
+                    "date", 
+                    "description", 
+                    "is_a_schedule", 
+                    "payment_type"
+                )
+                .where("account_id", userDetailDTO.id)
+                .orderBy("date")
+            userDetailDTO.bankStatement = [...drafts_and_deposits, ...payments]
             const userDetailResponse = mapUserDetailDTOToResponse(userDetailDTO)
             return userDetailResponse
         } catch (err) {

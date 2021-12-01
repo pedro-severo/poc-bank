@@ -33,9 +33,11 @@ export const mapUserDetailDTOToResponse = (userDetailDTO: UserDetailDTO): UserDe
             value: itemDTO.value,
             type: getType(),
             date: new Date(itemDTO.date),
-            description: itemDTO.description
+            description: itemDTO.description,
+            isASchedule: !!itemDTO.is_a_schedule,
+            paymentType: itemDTO.payment_type
         }
-    })
+    }).sort((a , b) => b.date.getTime() - a.date.getTime());
     return {
         accountId,
         userId,
