@@ -4,19 +4,20 @@ import { TransitionType } from "../../../entities/abstractEntities/genericBankTr
 import { AccountAction } from "../../../entities/accountAction";
 import { Payment } from "../../../entities/payment";
 import { mapDateToSqlDate } from "../../../utils/mapDateToSqlDate";
-import connection from "../databaseConnection";
+import { CommonDatabase } from "../common/database";
+import connection from "../common/databaseConnection";
 
 // TODO: Fix ts-ignore
 @Service()
 // @ts-ignore
-export class AccountDatabase {
+export class AccountDatabase extends CommonDatabase {
 
 
     async create(userId: string): Promise<void> {
         try {
             const accountId = v4()
             // TODO: Create a common database class with a function to insert values in tables
-            await connection("accounts").insert({
+            await this.insert("accounts", {
                 id: accountId, 
                 balance: 0,
                 user_id: userId
@@ -38,7 +39,7 @@ export class AccountDatabase {
                 description 
             } = accountAction
             // TODO: check if user have money to transfer
-            await connection("drafts_and_deposits").insert({
+            await this.connection("drafts_and_deposits").insert({
                 id,
                 value, 
                 type, 
@@ -65,7 +66,7 @@ export class AccountDatabase {
                 accountId 
             } = payment
             // TODO: check if user have money to pay
-            await connection("payments").insert({
+            await this.connection("payments").insert({
                 id, 
                 value, 
                 date: mapDateToSqlDate(date), 
@@ -102,7 +103,7 @@ export class AccountDatabase {
     }
     
     private async handleBalanceIncrement(accountId: string, value: number): Promise<void> {
-        await connection.raw(`
+        await this.connection.raw(`
             UPDATE accounts 
             SET balance = balance + ${value} 
             WHERE id = '${accountId}'
@@ -110,7 +111,7 @@ export class AccountDatabase {
     }
 
     private async handleBalanceDecrement(accountId: string, value: number): Promise<void> {
-        await connection.raw(`
+        await this.connection.raw(`
             UPDATE accounts 
             SET balance = balance - ${value} 
             WHERE id = '${accountId}'

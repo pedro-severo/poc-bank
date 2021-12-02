@@ -1,20 +1,21 @@
 import { Service } from "typedi";
 import { User } from "../../../entities/user";
 import { mapDateToSqlDate } from "../../../utils/mapDateToSqlDate";
-import connection from "../databaseConnection";
+import { CommonDatabase } from "../common/database";
+import connection from "../common/databaseConnection";
 import { users } from "../users";
 import { UserDetailResponse } from "./interface/UserDetailResponse";
 import { mapUserDetailDTOToResponse } from "./mapUserDetailDTOToResponse";
 
 @Service()
 // @ts-ignore
-export class UserDatabase {
+export class UserDatabase extends CommonDatabase {
 
 
     async create(user: User) {
         try {
             const {id, name, age, cpf, birthDate, bankStatement } = user
-            await connection("users").insert({
+            await this.insert("users", {
                 id, 
                 name, 
                 age, 
@@ -29,7 +30,7 @@ export class UserDatabase {
 
     async getUsers(): Promise<User[]> {
         try {
-            const users = await connection("users")
+            const users = await this.connection("users")
                 .select("name", "balance", "age")
                 .innerJoin('accounts', 'accounts.balance', 'accounts.user_id')
             return users
@@ -41,7 +42,7 @@ export class UserDatabase {
 
     async getUserById(id: string): Promise<UserDetailResponse> {
         try {
-            const result =  await connection.raw(`
+            const result =  await this.connection.raw(`
                 SELECT * FROM users user
                 JOIN accounts 
                 ON user_id=user.id
@@ -49,11 +50,11 @@ export class UserDatabase {
             `)
             const userDetailDTO = result[0][0]
             // TODO: get these arrays below in a common class called Database that are extended in specific databases classes. The method can be named as getBankStatement
-            const drafts_and_deposits = await connection("drafts_and_deposits")
+            const drafts_and_deposits = await this.connection("drafts_and_deposits")
                 .select("value", "type", "date", "description")
                 .where("account_id", userDetailDTO.id)
                 .orderBy("date")
-            const payments = await connection("payments")
+            const payments = await this.connection("payments")
                 .select(
                     "value", 
                     "type", 
