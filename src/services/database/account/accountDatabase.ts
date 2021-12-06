@@ -2,10 +2,11 @@ import { Service } from "typedi";
 import { v4 } from "uuid";
 import { TransitionType } from "../../../entities/abstractEntities/genericBankTransition";
 import { AccountAction } from "../../../entities/accountAction";
+import { BankTransaction } from "../../../entities/bankTransaction";
 import { Payment } from "../../../entities/payment";
 import { mapDateToSqlDate } from "../../../utils/mapDateToSqlDate";
 import { CommonDatabase } from "../common/database";
-import connection from "../common/databaseConnection";
+import { BalanceDirectionType } from "../user/interface/BankStatementItemDTO";
 
 // TODO: Fix ts-ignore
 @Service()
@@ -16,7 +17,6 @@ export class AccountDatabase extends CommonDatabase {
     async create(userId: string): Promise<void> {
         try {
             const accountId = v4()
-            // TODO: Create a common database class with a function to insert values in tables
             await this.insert("accounts", {
                 id: accountId, 
                 balance: 0,
@@ -38,15 +38,20 @@ export class AccountDatabase extends CommonDatabase {
                 accountId, 
                 description 
             } = accountAction
-            // TODO: check if user have money to transfer
-            await this.connection("drafts_and_deposits").insert({
+            type === TransitionType.DRAFT && await this.checkBalanceEnough(accountId, value)
+            const balance_direction = type === TransitionType.DEPOSIT 
+                ? BalanceDirectionType.INCOMING 
+                : BalanceDirectionType.EXIT
+            
+            await this.insert("drafts_and_deposits", {
                 id,
                 value, 
                 type, 
                 date: mapDateToSqlDate(date), 
+                balance_direction,
                 description,
                 account_id: accountId
-            })
+            })            
             await this.handleBalanceChange(type, value, accountId)
         } catch (err) {
             throw new Error("")
@@ -65,14 +70,15 @@ export class AccountDatabase extends CommonDatabase {
                 paymentType, 
                 accountId 
             } = payment
-            // TODO: check if user have money to pay
-            await this.connection("payments").insert({
+            await this.checkBalanceEnough(accountId, value)
+            await this.insert("payments", {
                 id, 
                 value, 
                 date: mapDateToSqlDate(date), 
                 description, 
                 is_a_schedule: isASchedule, 
                 type, 
+                balance_direction: BalanceDirectionType.EXIT,
                 payment_type: paymentType, 
                 account_id: accountId
             })
@@ -82,18 +88,59 @@ export class AccountDatabase extends CommonDatabase {
         }
     }
 
-    // TODO: create all cases
-    private async handleBalanceChange(type: TransitionType, value: number, accountId: string): Promise<void> {
+    async handleInternalTransaction(transaction: BankTransaction): Promise<void> {
+        try {
+            const { 
+                id, 
+                value, 
+                date, 
+                description, 
+                type, 
+                accountId, 
+                targetAccountId
+            } = transaction
+            await this.checkBalanceEnough(accountId, value)
+            await this.insert("internal_transactions", {
+                id: v4(), 
+                value,
+                date, 
+                description,
+                type,
+                balance_direction: BalanceDirectionType.INCOMING,
+                account_id: targetAccountId
+            })
+            await this.insert("internal_transactions", {
+                id, 
+                value,
+                date, 
+                description,
+                type,
+                balance_direction: BalanceDirectionType.EXIT,
+                account_id: accountId
+            })
+            await this.handleBalanceChange(type, value, targetAccountId, BalanceDirectionType.INCOMING)
+            await this.handleBalanceChange(type, value, accountId, BalanceDirectionType.EXIT)
+        } catch(err) {
+            throw new Error("")
+        } 
+    }
+
+    private async handleBalanceChange(type: TransitionType, value: number, accountId: string, balanceDirection?: BalanceDirectionType): Promise<void> {
         try {
             switch(type) {
                 case TransitionType.DEPOSIT:
-                    await this.handleBalanceIncrement(accountId, value)
+                    await this.handleBalanceIncoming(accountId, value)
                     break
                 case TransitionType.DRAFT:
-                    await this.handleBalanceDecrement(accountId, value)
+                    await this.handleBalanceExit(accountId, value)
                     break
                 case TransitionType.PAYMENT:
-                    await this.handleBalanceDecrement(accountId, value)
+                    await this.handleBalanceExit(accountId, value)
+                case TransitionType.INTERNAL_TRANSACTION:
+                    balanceDirection === BalanceDirectionType.INCOMING 
+                        ? await this.handleBalanceIncoming(accountId, value)
+                        : await this.handleBalanceExit(accountId, value)
+                    break
                 default: 
                     break
             }
@@ -102,20 +149,38 @@ export class AccountDatabase extends CommonDatabase {
         }
     }
     
-    private async handleBalanceIncrement(accountId: string, value: number): Promise<void> {
-        await this.connection.raw(`
-            UPDATE accounts 
-            SET balance = balance + ${value} 
-            WHERE id = '${accountId}'
-        `)
+    private async handleBalanceIncoming(accountId: string, value: number): Promise<void> {
+        try {
+            await this.connection.raw(`
+                UPDATE accounts 
+                SET balance = balance + ${value} 
+                WHERE id = '${accountId}'
+            `)
+        } catch (e) {
+            throw new Error("")
+        }
     }
 
-    private async handleBalanceDecrement(accountId: string, value: number): Promise<void> {
-        await this.connection.raw(`
-            UPDATE accounts 
-            SET balance = balance - ${value} 
-            WHERE id = '${accountId}'
-        `)
+    private async handleBalanceExit(accountId: string, value: number): Promise<void> {
+        try {
+            await this.connection.raw(`
+                UPDATE accounts 
+                SET balance = balance - ${value} 
+                WHERE id = '${accountId}'
+            `)
+        } catch (e) {
+            throw new Error("")
+        }
+    }
+
+    private async checkBalanceEnough(accountId: string, value: number): Promise<void> {
+        try {
+            const result = await this.connection("accounts").select("balance").where("id", accountId)
+            const balance = result[0]?.balance
+            if (balance < value) throw new Error("Account without enough money.")
+        } catch (e) {
+            throw new Error("")
+        }
     }
 
 }

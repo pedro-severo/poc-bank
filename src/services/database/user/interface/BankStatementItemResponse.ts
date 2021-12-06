@@ -1,11 +1,13 @@
 import { PaymentType } from "../../../../entities/payment";
+import { BalanceDirectionType } from "./BankStatementItemDTO";
 
 export interface BankStatementItemResponse {
     value: number,
     type: BankStatementType,
     date: Date,
     description: string
-    isASchedule?: boolean,
+    balanceDirection: BalanceDirectionType
+    isASchedule?: boolean
     paymentType?: PaymentType
 }
 

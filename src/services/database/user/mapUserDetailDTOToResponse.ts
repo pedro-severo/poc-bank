@@ -33,6 +33,7 @@ export const mapUserDetailDTOToResponse = (userDetailDTO: UserDetailDTO): UserDe
             value: itemDTO.value,
             type: getType(),
             date: new Date(itemDTO.date),
+            balanceDirection: itemDTO.balance_direction,
             description: itemDTO.description,
             isASchedule: !!itemDTO.is_a_schedule,
             paymentType: itemDTO.payment_type

@@ -2,8 +2,6 @@ import { Service } from "typedi";
 import { User } from "../../../entities/user";
 import { mapDateToSqlDate } from "../../../utils/mapDateToSqlDate";
 import { CommonDatabase } from "../common/database";
-import connection from "../common/databaseConnection";
-import { users } from "../users";
 import { UserDetailResponse } from "./interface/UserDetailResponse";
 import { mapUserDetailDTOToResponse } from "./mapUserDetailDTOToResponse";
 
@@ -51,7 +49,7 @@ export class UserDatabase extends CommonDatabase {
             const userDetailDTO = result[0][0]
             // TODO: get these arrays below in a common class called Database that are extended in specific databases classes. The method can be named as getBankStatement
             const drafts_and_deposits = await this.connection("drafts_and_deposits")
-                .select("value", "type", "date", "description")
+                .select("value", "type", "date", "balance_direction", "description")
                 .where("account_id", userDetailDTO.id)
                 .orderBy("date")
             const payments = await this.connection("payments")
@@ -59,13 +57,18 @@ export class UserDatabase extends CommonDatabase {
                     "value", 
                     "type", 
                     "date", 
+                    "balance_direction",
                     "description", 
                     "is_a_schedule", 
                     "payment_type"
                 )
                 .where("account_id", userDetailDTO.id)
                 .orderBy("date")
-            userDetailDTO.bankStatement = [...drafts_and_deposits, ...payments]
+            const internalTransactions = await this.connection("internal_transactions")
+                .select("value", "type", "date", "balance_direction", "description")
+                .where("account_id", userDetailDTO.id)
+                .orderBy("date")
+            userDetailDTO.bankStatement = [...drafts_and_deposits, ...payments, ...internalTransactions]
             const userDetailResponse = mapUserDetailDTOToResponse(userDetailDTO)
             return userDetailResponse
         } catch (err) {

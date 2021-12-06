@@ -28,33 +28,4 @@ export class PaymentUC {
         }
 
     }
-
-    // TODO: once database implemented, abstract this methods in a DATABASE class
-    private async handlePayment(payment: Payment, userId: string) {
-        try {            
-            const user = await this.getUser(userId)
-            const indexToRemove = users.findIndex(user => user.id === userId)
-            if (user) {
-                if (payment.isASchedule || payment.value <= user.balance) {
-                    user.bankStatement.push(payment)
-                    if (!payment.isASchedule) user.balance -= payment.value
-                    users.splice(indexToRemove, 1, user)
-                    return user
-                } else {
-                    throw new Error("User doesn't have enough money")
-                }
-            }
-        } catch (err) {
-            throw new Error("")
-        }
-    }
-    private async getUser(id: string): Promise<User> {
-        try {
-            const user = users.find(user => user.id === id)
-            if (user) return user
-            else throw new Error("User not found.")
-        } catch (err) {
-            throw new Error("")
-        }
-    }
 }

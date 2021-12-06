@@ -6,6 +6,12 @@ export interface BankStatementItemDTO {
     type: TransitionType,
     date: string,
     description: string,
+    balance_direction: BalanceDirectionType,
     is_a_schedule?: number,
     payment_type?: PaymentType
+}
+
+export enum BalanceDirectionType {
+    EXIT = "exit",
+    INCOMING = "incoming"
 }

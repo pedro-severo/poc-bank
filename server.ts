@@ -18,7 +18,7 @@ app.post("/user", createUserHandler)
 app.get("/user/:id", getUserDetailHandler)
 app.put("/accountAction/:accountId", bankDraftOrDepositHandler)
 app.put("/payment/:accountId", paymentHandler)
-app.put("/transaction/:sourceUserId/:targetUserId", bankTransactionHandler)
+app.put("/transaction/:sourceAccountId/:targetAccountId", bankTransactionHandler)
 
 app.listen(3003, () => {
     console.log(`Server is running on port 3003`)
