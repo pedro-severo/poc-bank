@@ -6,13 +6,12 @@ import { UserDetailResponse } from "./interface/UserDetailResponse";
 import { mapUserDetailDTOToResponse } from "./mapUserDetailDTOToResponse";
 
 @Service()
-// @ts-ignore
 export class UserDatabase extends CommonDatabase {
 
 
     async create(user: User) {
         try {
-            const {id, name, age, cpf, birthDate, bankStatement } = user
+            const {id, name, age, cpf, birthDate } = user
             await this.insert("users", {
                 id, 
                 name, 
@@ -47,28 +46,8 @@ export class UserDatabase extends CommonDatabase {
                 WHERE user.id="${id}";
             `)
             const userDetailDTO = result[0][0]
-            // TODO: get these arrays below in a common class called Database that are extended in specific databases classes. The method can be named as getBankStatement
-            const drafts_and_deposits = await this.connection("drafts_and_deposits")
-                .select("value", "type", "date", "balance_direction", "description")
-                .where("account_id", userDetailDTO.id)
-                .orderBy("date")
-            const payments = await this.connection("payments")
-                .select(
-                    "value", 
-                    "type", 
-                    "date", 
-                    "balance_direction",
-                    "description", 
-                    "is_a_schedule", 
-                    "payment_type"
-                )
-                .where("account_id", userDetailDTO.id)
-                .orderBy("date")
-            const internalTransactions = await this.connection("internal_transactions")
-                .select("value", "type", "date", "balance_direction", "description")
-                .where("account_id", userDetailDTO.id)
-                .orderBy("date")
-            userDetailDTO.bankStatement = [...drafts_and_deposits, ...payments, ...internalTransactions]
+            const bankStatement = await this.getBankStatement(result[0][0].id)
+            userDetailDTO.bankStatement = bankStatement
             const userDetailResponse = mapUserDetailDTOToResponse(userDetailDTO)
             return userDetailResponse
         } catch (err) {

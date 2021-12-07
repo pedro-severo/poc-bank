@@ -1,12 +1,8 @@
-import { users } from "../services/database/users"
 import { Payment } from "../entities/payment"
-import { User } from "../entities/user"
 import Container, { Service } from "typedi"
 import { AccountDatabase } from "../services/database/account/accountDatabase"
 
-// TODO: Fix ts-ignore
 @Service()
-// @ts-ignore
 export class PaymentUC {
     accountDb: AccountDatabase
 

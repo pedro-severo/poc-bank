@@ -2,9 +2,7 @@ import { BankTransaction } from "../entities/bankTransaction"
 import Container, { Service } from "typedi"
 import { AccountDatabase } from "../services/database/account/accountDatabase"
 
-// TODO: Fix ts-ignore
 @Service()
-// @ts-ignore
 export class BankTransactionUC {
     accountDb: AccountDatabase
 

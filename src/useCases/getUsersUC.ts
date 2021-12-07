@@ -3,7 +3,6 @@ import { User } from "../entities/user"
 import { UserDatabase } from "../services/database/user/userDatabase"
 
 @Service()
-// @ts-ignore
 export class GetUsersUC {
     userDb: UserDatabase
 

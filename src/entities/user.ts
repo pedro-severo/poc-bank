@@ -1,5 +1,4 @@
 import { getAgeByBirthDate } from "../utils/getAgeByBirthDate"
-import { GenericBankTransition } from "./abstractEntities/genericBankTransition"
 
 export class User {
     id: string
@@ -7,9 +6,6 @@ export class User {
     age: number
     cpf: string
     birthDate: Date
-    // TODO: once entire database implemented, remove this two props
-    balance: number
-    bankStatement: GenericBankTransition[]
 
     constructor(
         id: string,
@@ -22,7 +18,5 @@ export class User {
         this.age = getAgeByBirthDate(birthDate)
         this.cpf = cpf 
         this.birthDate = birthDate
-        this.balance = 0
-        this.bankStatement = []
     }
 }

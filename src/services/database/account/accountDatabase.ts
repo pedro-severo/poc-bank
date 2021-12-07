@@ -8,9 +8,7 @@ import { mapDateToSqlDate } from "../../../utils/mapDateToSqlDate";
 import { CommonDatabase } from "../common/database";
 import { BalanceDirectionType } from "../user/interface/BankStatementItemDTO";
 
-// TODO: Fix ts-ignore
 @Service()
-// @ts-ignore
 export class AccountDatabase extends CommonDatabase {
 
 
@@ -71,6 +69,8 @@ export class AccountDatabase extends CommonDatabase {
                 accountId 
             } = payment
             await this.checkBalanceEnough(accountId, value)
+            mapDateToSqlDate(date)
+            // TODO: FIX => the database is saving datetime with 3 hours more than Brazil time
             await this.insert("payments", {
                 id, 
                 value, 

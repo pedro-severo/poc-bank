@@ -3,9 +3,7 @@ import { UserDatabase } from '../services/database/user/userDatabase';
 import Container, { Service } from 'typedi';
 import { AccountDatabase } from "../services/database/account/accountDatabase";
 
-// TODO: Fix ts-ignore
 @Service()
-// @ts-ignore
 export class CreateUserUC {
     userDb: UserDatabase
     accountDb: AccountDatabase

@@ -4,7 +4,6 @@ import { UserDatabase } from '../services/database/user/userDatabase';
 import { UserDetailResponse } from "../services/database/user/interface/UserDetailResponse";
 
 @Service()
-// @ts-ignore
 export class GetUserDetailUC {
     userDb: UserDatabase
 
