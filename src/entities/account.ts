@@ -1,4 +1,4 @@
-export class User {
+export class Account {
     id: string
     balance: number
     userId: string
