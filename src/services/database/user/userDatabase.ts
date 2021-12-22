@@ -27,7 +27,7 @@ export class UserDatabase extends CommonDatabase {
 
     async getUsers(): Promise<User[]> {
         try {
-            const users = await this.connection("users")
+            const users = await CommonDatabase.connection("users")
                 .select("name", "balance", "age")
                 .innerJoin('accounts', 'accounts.balance', 'accounts.user_id')
             return users
@@ -39,7 +39,7 @@ export class UserDatabase extends CommonDatabase {
 
     async getUserById(id: string): Promise<UserDetailResponse> {
         try {
-            const result =  await this.connection.raw(`
+            const result =  await CommonDatabase.connection.raw(`
                 SELECT * FROM users user
                 JOIN accounts 
                 ON user_id=user.id

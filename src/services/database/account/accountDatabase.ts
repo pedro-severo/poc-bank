@@ -151,7 +151,7 @@ export class AccountDatabase extends CommonDatabase {
     
     private async handleBalanceIncoming(accountId: string, value: number): Promise<void> {
         try {
-            await this.connection.raw(`
+            await CommonDatabase.connection.raw(`
                 UPDATE accounts 
                 SET balance = balance + ${value} 
                 WHERE id = '${accountId}'
@@ -163,7 +163,7 @@ export class AccountDatabase extends CommonDatabase {
 
     private async handleBalanceExit(accountId: string, value: number): Promise<void> {
         try {
-            await this.connection.raw(`
+            await CommonDatabase.connection.raw(`
                 UPDATE accounts 
                 SET balance = balance - ${value} 
                 WHERE id = '${accountId}'
@@ -175,7 +175,7 @@ export class AccountDatabase extends CommonDatabase {
 
     private async checkBalanceEnough(accountId: string, value: number): Promise<void> {
         try {
-            const result = await this.connection("accounts").select("balance").where("id", accountId)
+            const result = await CommonDatabase.connection("accounts").select("balance").where("id", accountId)
             const balance = result[0]?.balance
             if (balance < value) throw new Error("Account without enough money.")
         } catch (e) {
